@@ -1,1 +1,2 @@
-export { MyButton } from './MyButton'
+export { MyButton } from './MyButton';
+export * from './notip';
