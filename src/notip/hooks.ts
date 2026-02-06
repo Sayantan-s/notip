@@ -1,6 +1,6 @@
-import { useSyncExternalStore } from 'react';
-import { snackbarStore, dialogStore } from './store';
-import type { SnackbarConfig, DialogConfig } from './types';
+import { useSyncExternalStore } from "react";
+import { snackbarStore, dialogStore } from "./store";
+import type { SnackbarConfig, DialogConfig } from "./types";
 
 export const useSnackbarStore = () => {
   return useSyncExternalStore(snackbarStore.subscribe, snackbarStore.getSnapshot);

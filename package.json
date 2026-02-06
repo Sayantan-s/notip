@@ -1,28 +1,28 @@
 {
   "name": "react-compiler-components-starter",
-  "type": "module",
   "version": "0.0.0",
   "description": "A starter for creating a React component library with React Compiler.",
-  "author": "Author Name <author.name@mail.com>",
-  "license": "MIT",
   "homepage": "https://github.com/author/library#readme",
+  "bugs": {
+    "url": "https://github.com/author/library/issues"
+  },
+  "license": "MIT",
+  "author": "Author Name <author.name@mail.com>",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/author/library.git"
   },
-  "bugs": {
-    "url": "https://github.com/author/library/issues"
-  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": "./dist/index.js",
     "./package.json": "./package.json"
   },
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
   "publishConfig": {
     "access": "public"
   },
@@ -35,14 +35,18 @@
     "release": "bumpp && pnpm publish",
     "prepublishOnly": "pnpm run build",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
-  },
-  "peerDependencies": {
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "build-storybook": "storybook build",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix .",
+    "lint:style": "stylelint \"**/*.css\"",
+    "format": "oxfmt .",
+    "format:check": "oxfmt --check .",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^5.0.0",
+    "@commitlint/cli": "^20.4.1",
+    "@commitlint/config-conventional": "^20.4.1",
     "@rollup/plugin-babel": "^6.1.0",
     "@storybook/addon-a11y": "^10.2.7",
     "@storybook/addon-docs": "^10.2.7",
@@ -58,14 +62,35 @@
     "@vitest/coverage-v8": "4.0.18",
     "babel-plugin-react-compiler": "^1.0.0",
     "bumpp": "^10.3.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
     "oxfmt": "^0.28.0",
     "oxlint": "^1.43.0",
     "playwright": "^1.58.2",
     "storybook": "^10.2.7",
+    "stylelint": "^16.14.1",
+    "stylelint-config-standard": "^37.0.0",
     "tsdown": "^0.18.1",
     "typescript": "^5.9.3",
     "vite": "^7.3.0",
     "vitest": "^4.0.16",
     "vitest-browser-react": "^2.0.2"
+  },
+  "peerDependencies": {
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "oxlint --fix",
+      "oxfmt --write"
+    ],
+    "*.css": [
+      "stylelint --fix",
+      "oxfmt --write"
+    ],
+    "*.{json,md}": [
+      "oxfmt --write"
+    ]
   }
 }

@@ -1,6 +1,12 @@
-export type Placement = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'top-center' | 'bottom-center';
+export type Placement =
+  | "top-left"
+  | "top-right"
+  | "bottom-left"
+  | "bottom-right"
+  | "top-center"
+  | "bottom-center";
 
-export type Variant = 'default' | 'success' | 'error' | 'warning' | 'info';
+export type Variant = "default" | "success" | "error" | "warning" | "info";
 
 export interface SnackbarConfig {
   title?: string;

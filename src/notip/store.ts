@@ -1,4 +1,11 @@
-import type { SnackbarConfig, DialogConfig, SnackbarItem, DialogItem, SnackbarState, DialogState } from './types';
+import type {
+  SnackbarConfig,
+  DialogConfig,
+  SnackbarItem,
+  DialogItem,
+  SnackbarState,
+  DialogState,
+} from "./types";
 
 // Singleton Guard
 class NotipGuard {
@@ -7,7 +14,9 @@ class NotipGuard {
   mount = () => {
     this.mountCount++;
     if (this.mountCount > 1) {
-      throw new Error('[Notip] Multiple NotipProviders detected. Notip should be a singleton in your app root.');
+      throw new Error(
+        "[Notip] Multiple NotipProviders detected. Notip should be a singleton in your app root.",
+      );
     }
   };
 
@@ -42,9 +51,9 @@ class SnackbarStore {
       ...config,
       id,
       createdAt: Date.now(),
-      placement: config.placement || 'bottom-right',
+      placement: config.placement || "bottom-right",
       time: config.time ?? 3000,
-      variant: config.variant || 'default',
+      variant: config.variant || "default",
     };
 
     this.state = {
