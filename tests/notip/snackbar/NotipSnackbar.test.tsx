@@ -6,7 +6,7 @@ import React from "react";
 
 // Helper component to trigger snackbars
 const Trigger = () => {
-  const { show, dismiss } = useSnackbar();
+  const { show } = useSnackbar();
   return (
     <div>
       <button onClick={() => show({ title: "Test Snackbar", variant: "success", time: 5000 })}>

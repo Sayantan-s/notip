@@ -1,11 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Notip, useSnackbar, useDialog, NotipSnackbar, NotipDialog } from "../notip";
+import { Notip, useSnackbar, NotipSnackbar } from "../notip";
 
-// --- Demo Component ---
-
-const NotipDemo = () => {
+const SnackbarDemo = () => {
   const { show: showSnackbar } = useSnackbar();
-  const { show: showDialog } = useDialog();
 
   const handleShowSnackbar = (variant: "default" | "success" | "error" | "warning" | "info") => {
     showSnackbar({
@@ -30,30 +27,6 @@ const NotipDemo = () => {
       description: `This notification is positioned at ${placement}.`,
       placement,
       variant: "info",
-    });
-  };
-
-  const handleShowDialog = () => {
-    showDialog({
-      title: "Confirmation Required",
-      description: "Are you sure you want to perform this action?",
-      variant: "warning",
-      confirmText: "Yes, Proceed",
-      cancelText: "No, Cancel",
-      onConfirm: () => {
-        showSnackbar({
-          title: "Confirmed",
-          variant: "success",
-          description: "Action confirmed!",
-        });
-      },
-      onCancel: () => {
-        showSnackbar({
-          title: "Cancelled",
-          variant: "info",
-          description: "Action cancelled.",
-        });
-      },
     });
   };
 
@@ -89,25 +62,14 @@ const NotipDemo = () => {
         </div>
       </section>
 
-      <section>
-        <h3>Dialogs</h3>
-        <div style={{ display: "flex", gap: "10px" }}>
-          <button onClick={handleShowDialog}>Open Confirmation Dialog</button>
-        </div>
-      </section>
-
-      {/* Render the Notip components for portals */}
       <NotipSnackbar />
-      <NotipDialog />
     </div>
   );
 };
 
-// --- Story Setup ---
-
 const meta = {
-  title: "Library/Notip",
-  component: NotipDemo,
+  title: "Library/Snackbar",
+  component: SnackbarDemo,
   decorators: [
     (Story) => (
       <Notip>
@@ -118,7 +80,7 @@ const meta = {
   parameters: {
     layout: "fullscreen",
   },
-} satisfies Meta<typeof NotipDemo>;
+} satisfies Meta<typeof SnackbarDemo>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

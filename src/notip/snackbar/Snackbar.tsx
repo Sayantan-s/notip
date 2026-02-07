@@ -62,22 +62,20 @@ export const NotipSnackbar = () => {
   );
 
   return createPortal(
-    <>
-      {(Object.keys(groupedSnackbars) as Placement[]).map((placement) => {
-        const items = groupedSnackbars[placement];
+    (Object.keys(groupedSnackbars) as Placement[]).map((placement) => {
+      const items = groupedSnackbars[placement];
 
-        return (
-          <div
-            key={placement}
-            className={`notip-snackbar-container notip-snackbar-container-${placement}`}
-          >
-            {items.map((snackbar) => (
-              <SnackbarItemComponent key={snackbar.id} item={snackbar} />
-            ))}
-          </div>
-        );
-      })}
-    </>,
+      return (
+        <div
+          key={placement}
+          className={`notip-snackbar-container notip-snackbar-container-${placement}`}
+        >
+          {items.map((snackbar) => (
+            <SnackbarItemComponent key={snackbar.id} item={snackbar} />
+          ))}
+        </div>
+      );
+    }),
     document.body,
   );
 };
