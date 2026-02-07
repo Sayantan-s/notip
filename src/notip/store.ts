@@ -2,7 +2,6 @@ import type {
   SnackbarConfig,
   DialogConfig,
   SnackbarItem,
-  DialogItem,
   SnackbarState,
   DialogState,
 } from "./types";

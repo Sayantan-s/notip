@@ -19,6 +19,7 @@ export interface SnackbarConfig {
 export interface SnackbarItem extends SnackbarConfig {
   id: string;
   createdAt: number;
+  time: number;
 }
 
 export interface DialogConfig {
