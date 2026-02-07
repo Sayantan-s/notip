@@ -22,24 +22,7 @@ export interface SnackbarItem extends SnackbarConfig {
   time: number;
 }
 
-export interface DialogConfig {
-  title?: string;
-  description?: string;
-  variant?: Variant;
-  confirmText?: string;
-  cancelText?: string;
-  onConfirm?: () => void;
-  onCancel?: () => void;
-}
-
-export interface DialogItem extends DialogConfig {
-  id: string;
-}
-
 export interface SnackbarState {
   snackbars: SnackbarItem[];
-}
-
-export interface DialogState {
-  dialog: DialogItem | null;
+  previousSnackbarQueue: SnackbarItem[];
 }

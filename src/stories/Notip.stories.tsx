@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Notip, useSnackbar, useDialog } from "../notip";
+import { Notip, useSnackbar, useDialog, NotipSnackbar, NotipDialog } from "../notip";
 
 // --- Demo Component ---
 
@@ -97,8 +97,8 @@ const NotipDemo = () => {
       </section>
 
       {/* Render the Notip components for portals */}
-      <Notip.Snackbar />
-      <Notip.Dialog />
+      <NotipSnackbar />
+      <NotipDialog />
     </div>
   );
 };

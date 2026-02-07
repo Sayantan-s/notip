@@ -1,0 +1,139 @@
+/* Animations */
+@keyframes notip-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes notip-scale-in {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Dialog Overlay */
+.notip-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgb(0 0 0 / 50%);
+  backdrop-filter: blur(4px);
+  animation: notip-fade-in 0.2s ease-out;
+}
+
+/* Dialog Content */
+.notip-dialog {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  width: 100%;
+  max-width: 448px;
+  margin: 0 16px;
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 25%);
+  animation: notip-scale-in 0.2s ease-out;
+}
+
+@media (prefers-color-scheme: dark) {
+  .notip-dialog {
+    background-color: #1f2937;
+    color: #f3f4f6;
+  }
+}
+
+.notip-dialog-header {
+  margin-bottom: 16px;
+}
+
+.notip-dialog-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin: 0;
+  color: inherit;
+}
+
+.notip-dialog-description {
+  margin-top: 8px;
+  color: #4b5563;
+  font-size: 1rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .notip-dialog-description {
+    color: #9ca3af;
+  }
+}
+
+.notip-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.notip-btn {
+  padding: 8px 16px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.notip-btn-cancel {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.notip-btn-cancel:hover {
+  background-color: #e5e7eb;
+}
+
+@media (prefers-color-scheme: dark) {
+  .notip-btn-cancel {
+    background-color: #374151;
+    color: #e5e7eb;
+  }
+
+  .notip-btn-cancel:hover {
+    background-color: #4b5563;
+  }
+}
+
+.notip-btn-confirm {
+  color: white;
+  background-color: #2563eb;
+}
+
+.notip-btn-confirm:hover {
+  opacity: 0.9;
+}
+
+.notip-btn-confirm-error {
+  background-color: #dc2626;
+}
+
+.notip-btn-confirm-warning {
+  background-color: #ca8a04;
+}
+
+.notip-btn-confirm-success {
+  background-color: #16a34a;
+}
+
+.notip-btn-confirm-info {
+  background-color: #2563eb;
+}

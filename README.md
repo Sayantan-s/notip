@@ -4,8 +4,9 @@
 
 ### 🛠️ tools
 
-&nbsp;<img src="https://cdn.svgporn.com/logos/typescript-icon.svg" width="48">
-&nbsp;<img src="https://raw.githubusercontent.com/Sayantan-s/Sayantan-s/main/react.svg" width="48">
-&nbsp;<img src="https://tsdown.dev/tsdown.svg" width="50">
-&nbsp;<img src="https://cdn.svglogos.dev/logos/storybook-icon.svg" width="35">
-&nbsp;<img src="https://cdn.svglogos.dev/logos/vitejs.svg" width="48">
+&nbsp;<img src="https://cdn.svgporn.com/logos/typescript-icon.svg" width="48" alt="typescript">
+&nbsp;<img src="https://raw.githubusercontent.com/Sayantan-s/Sayantan-s/main/react.svg" width="48" alt="react">
+&nbsp;<img src="https://tsdown.dev/tsdown.svg" width="50" alt="tsdown">
+&nbsp;<img src="https://cdn.svglogos.dev/logos/storybook-icon.svg" width="35" alt="storybook">
+&nbsp;<img src="https://cdn.svglogos.dev/logos/vitejs.svg" width="48" alt="vite">
+&nbsp;<img src="https://cdn.svglogos.dev/logos/yarn.svg" width="48" alt="yarn">
