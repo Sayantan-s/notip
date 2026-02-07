@@ -20,17 +20,27 @@ export default defineConfig({
   ],
   test: {
     root: ".",
-    browser: {
-      enabled: true,
-      provider: playwright(),
-      instances: [
-        {
-          browser: "chromium",
-        },
-      ],
-      headless: true,
+    optimizeDeps: {
+      include: ["vitest-browser-react"],
     },
     projects: [
+      {
+        extends: true,
+        test: {
+          name: "unit-integration",
+          include: ["tests/**/*.test.tsx"],
+          browser: {
+            enabled: true,
+            provider: playwright(),
+            instances: [
+              {
+                browser: "chromium",
+              },
+            ],
+            headless: true,
+          },
+        },
+      },
       {
         extends: true,
         plugins: [
