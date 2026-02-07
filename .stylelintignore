@@ -1,1 +1,4 @@
-dist/index.css
+dist/**/*.css
+node_modules/**/*.css
+.storybook/**/*.css
+.vite/**/*.css

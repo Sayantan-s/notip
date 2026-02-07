@@ -79,18 +79,5 @@
   "peerDependencies": {
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
-  },
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
-      "oxlint --fix",
-      "oxfmt --write"
-    ],
-    "*.css": [
-      "stylelint --fix",
-      "oxfmt --write"
-    ],
-    "*.{json,md}": [
-      "oxfmt --write"
-    ]
   }
 }
