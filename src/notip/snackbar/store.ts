@@ -1,14 +1,35 @@
 import type { SnackbarConfig, SnackbarItem, SnackbarState } from "./types";
 
+interface Node {
+  item: SnackbarItem;
+  next: Node | null;
+  prev: Node | null;
+}
+
+interface ISubscriptionConfig {
+  limit?: number;
+}
+
 class SnackbarStore {
   private state: SnackbarState = {
     snackbars: [],
-    previousSnackbarQueue: [],
   };
+
+  // Internal data structures for O(1) access and stable ordering
+  private nodes = new Map<string, Node>();
+  private head: Node | null = null;
+  private tail: Node | null = null;
+  private limit = 3;
+
   private listeners = new Set<() => void>();
   private timers = new Map<string, ReturnType<typeof setTimeout>>();
 
-  subscribe = (listener: () => void) => {
+  subscribe = (config: ISubscriptionConfig) => (listener: () => void) => {
+    const newLimit = config?.limit || 3;
+    if (this.limit !== newLimit) {
+      this.limit = newLimit;
+      this.updateVisibleState();
+    }
     this.listeners.add(listener);
     return () => {
       this.listeners.delete(listener);
@@ -30,12 +51,19 @@ class SnackbarStore {
       variant: config.variant || "default",
     };
 
-    const allSnackbars = [newItem, ...this.state.snackbars, ...this.state.previousSnackbarQueue];
+    // Create Node and Prepend to Head (Newest First)
+    const node: Node = { item: newItem, next: null, prev: null };
 
-    this.state = {
-      snackbars: allSnackbars.slice(0, 3),
-      previousSnackbarQueue: allSnackbars.slice(3),
-    };
+    if (!this.head) {
+      this.head = node;
+      this.tail = node;
+    } else {
+      node.next = this.head;
+      this.head.prev = node;
+      this.head = node;
+    }
+
+    this.nodes.set(id, node);
 
     // Register dismiss timer
     const timer = setTimeout(() => {
@@ -43,6 +71,7 @@ class SnackbarStore {
     }, newItem.time);
     this.timers.set(id, timer);
 
+    this.updateVisibleState();
     this.emitChange();
     return id;
   };
@@ -55,16 +84,44 @@ class SnackbarStore {
       this.timers.delete(id);
     }
 
-    const allSnackbars = [...this.state.snackbars, ...this.state.previousSnackbarQueue].filter(
-      (s) => s.id !== id,
-    );
+    const node = this.nodes.get(id);
+    if (!node) return;
 
-    this.state = {
-      snackbars: allSnackbars.slice(0, 3),
-      previousSnackbarQueue: allSnackbars.slice(3),
-    };
+    // Unlink from List
+    if (node.prev) {
+      node.prev.next = node.next;
+    } else {
+      this.head = node.next;
+    }
+
+    if (node.next) {
+      node.next.prev = node.prev;
+    } else {
+      this.tail = node.prev;
+    }
+
+    this.nodes.delete(id);
+
+    this.updateVisibleState();
     this.emitChange();
   };
+
+  private updateVisibleState() {
+    // Traverse top 'limit' items to form visible set
+    const visible: SnackbarItem[] = [];
+    let current = this.head;
+    let count = 0;
+
+    while (current && count < this.limit) {
+      visible.push(current.item);
+      current = current.next;
+      count++;
+    }
+
+    this.state = {
+      snackbars: visible,
+    };
+  }
 
   private emitChange() {
     this.listeners.forEach((l) => l());

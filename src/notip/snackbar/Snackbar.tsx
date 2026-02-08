@@ -1,4 +1,5 @@
 import { createPortal } from "react-dom";
+import { useEffect, type FC } from "react";
 import { useSnackbarStore } from "./useSnackbar";
 import { snackbarStore } from "./store";
 import type { Placement, SnackbarItem } from "./types";
@@ -24,13 +25,36 @@ const CloseIcon = () => (
 );
 
 // Individual Snackbar Component handles its own timer
-const SnackbarItemComponent = ({ item }: { item: SnackbarItem }) => {
+const SnackbarItemComponent = ({
+  item,
+  index,
+  total,
+  placement,
+}: {
+  item: SnackbarItem;
+  index: number;
+  total: number;
+  placement: Placement;
+}) => {
   return (
-    <div className={`notip-snackbar notip-snackbar-${item.variant || "default"}`} role="alert">
+    <div
+      className={`notip-snackbar notip-snackbar-${item.variant || "default"}`}
+      role="alert"
+      style={
+        {
+          "--index": index,
+          "--total": total,
+          zIndex: total - index,
+        } as React.CSSProperties
+      }
+      data-placement={placement}
+    >
       <div className="notip-snackbar-content">
         <div className="notip-snackbar-text">
           {item.title && <h4 className="notip-snackbar-title">{item.title}</h4>}
-          {item.description && <p className="notip-snackbar-description">{item.description}</p>}
+          {item.description && (
+            <p className="notip-snackbar-description">{item.description}</p>
+          )}
         </div>
         <button
           onClick={() => snackbarStore.dismiss(item.id)}
@@ -46,8 +70,12 @@ const SnackbarItemComponent = ({ item }: { item: SnackbarItem }) => {
 
 const useTrackMountCount = trackMountCountToBlock();
 
-export const NotipSnackbar = () => {
-  const { snackbars } = useSnackbarStore();
+interface NotipSnackbarProps {
+  limit?: number;
+}
+
+export const NotipSnackbar: FC<NotipSnackbarProps> = ({ limit = 3 }) => {
+  const { snackbars } = useSnackbarStore(limit);
 
   useTrackMountCount();
 
@@ -64,15 +92,28 @@ export const NotipSnackbar = () => {
   return createPortal(
     (Object.keys(groupedSnackbars) as Placement[]).map((placement) => {
       const items = groupedSnackbars[placement];
+      const total = items.length;
 
       return (
         <div
           key={placement}
           className={`notip-snackbar-container notip-snackbar-container-${placement}`}
         >
-          {items.map((snackbar) => (
-            <SnackbarItemComponent key={snackbar.id} item={snackbar} />
-          ))}
+          {items.map((snackbar, idx) => {
+            // Items are ordered Newest First.
+            // We want Newest to be at index 0 (Front).
+            // So stackIndex is simply idx.
+
+            return (
+              <SnackbarItemComponent
+                key={snackbar.id}
+                item={snackbar}
+                index={idx}
+                total={total}
+                placement={placement}
+              />
+            );
+          })}
         </div>
       );
     }),

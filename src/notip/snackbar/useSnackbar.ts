@@ -2,8 +2,11 @@ import { useSyncExternalStore } from "react";
 import { snackbarStore } from "./store";
 import type { SnackbarConfig } from "./types";
 
-export const useSnackbarStore = () => {
-  return useSyncExternalStore(snackbarStore.subscribe, snackbarStore.getSnapshot);
+export const useSnackbarStore = (limit?: number) => {
+  return useSyncExternalStore(
+    snackbarStore.subscribe({ limit: limit || 3 }),
+    snackbarStore.getSnapshot,
+  );
 };
 
 export const useSnackbar = () => {

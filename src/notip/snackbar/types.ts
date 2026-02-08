@@ -24,5 +24,4 @@ export interface SnackbarItem extends SnackbarConfig {
 
 export interface SnackbarState {
   snackbars: SnackbarItem[];
-  previousSnackbarQueue: SnackbarItem[];
 }

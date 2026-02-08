@@ -29,15 +29,19 @@ const Trigger = () => {
 beforeEach(() => {
   cleanup();
   // Reset store state (accessing private state for testing)
-  (snackbarStore as any).state = {
+  const store = snackbarStore as any;
+  store.state = {
     snackbars: [],
-    previousSnackbarQueue: [],
   };
-  (snackbarStore as any).listeners.forEach((l: any) => l());
+  store.nodes.clear();
+  store.head = null;
+  store.tail = null;
+  
+  store.listeners.forEach((l: any) => l());
 
   // Clear timers
-  (snackbarStore as any).timers.forEach((t: any) => clearTimeout(t));
-  (snackbarStore as any).timers.clear();
+  store.timers.forEach((t: any) => clearTimeout(t));
+  store.timers.clear();
 });
 
 test("renders nothing initially", async () => {
@@ -95,6 +99,39 @@ test("limits visible snackbars to 3", async () => {
   await expect.element(elements[0]).toHaveTextContent("Snackbar 4");
   await expect.element(elements[1]).toHaveTextContent("Snackbar 3");
   await expect.element(elements[2]).toHaveTextContent("Snackbar 2");
+});
+
+test("updates visible limit when prop changes", async () => {
+  const TestComponent = () => {
+    const [limit, setLimit] = React.useState(2);
+    return (
+      <>
+        <button onClick={() => setLimit(4)}>Change Limit</button>
+        <NotipSnackbar limit={limit} />
+        <Trigger />
+      </>
+    );
+  };
+
+  render(<TestComponent />);
+
+  const button = page.getByText("Show Many");
+  await button.click(); // Shows 5 items
+
+  let alerts = await page.getByRole("alert").all();
+  await expect(alerts).toHaveLength(2);
+  await expect.element(alerts[0]).toHaveTextContent("Snackbar 4");
+  await expect.element(alerts[1]).toHaveTextContent("Snackbar 3");
+
+  // Change limit
+  await page.getByText("Change Limit").click();
+
+  alerts = await page.getByRole("alert").all();
+  await expect(alerts).toHaveLength(4);
+  await expect.element(alerts[0]).toHaveTextContent("Snackbar 4");
+  await expect.element(alerts[1]).toHaveTextContent("Snackbar 3");
+  await expect.element(alerts[2]).toHaveTextContent("Snackbar 2");
+  await expect.element(alerts[3]).toHaveTextContent("Snackbar 1");
 });
 
 test("dismisses snackbar on close button click", async () => {

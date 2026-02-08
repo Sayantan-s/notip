@@ -26,49 +26,56 @@
   position: fixed;
   z-index: 9999;
   display: flex;
-  gap: 8px;
+  /* Use flex primarily to align the 'stack' anchor point, 
+     but items will be absolute. */
   width: 100%;
   max-width: 384px;
   pointer-events: none;
   padding: 16px;
+  /* Ensure container has no height so it doesn't block clicks, 
+     items will project out */
+  height: 0; 
+  /* Allow visible overflow for expansion */
+  overflow: visible; 
 }
 
+/* Positioning */
 .notip-snackbar-container-top-left {
   top: 0;
   left: 0;
-  flex-direction: column;
+  align-items: flex-start;
 }
 
 .notip-snackbar-container-top-right {
   top: 0;
   right: 0;
-  flex-direction: column;
+  align-items: flex-end;
 }
 
 .notip-snackbar-container-bottom-left {
   bottom: 0;
   left: 0;
-  flex-direction: column-reverse;
+  align-items: flex-start;
 }
 
 .notip-snackbar-container-bottom-right {
   bottom: 0;
   right: 0;
-  flex-direction: column-reverse;
+  align-items: flex-end;
 }
 
 .notip-snackbar-container-top-center {
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  flex-direction: column;
+  align-items: center;
 }
 
 .notip-snackbar-container-bottom-center {
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  flex-direction: column-reverse;
+  align-items: center;
 }
 
 /* Snackbar Item */
@@ -80,14 +87,67 @@
     0 10px 15px -3px rgb(0 0 0 / 10%),
     0 4px 6px -2px rgb(0 0 0 / 5%);
   border: 1px solid transparent;
-  animation:
-    notip-slide-in-bottom 0.3s ease-out,
-    notip-fade-in 0.3s ease-out;
   background-color: #fff;
   color: #1f2937;
+  
+  width: 100%;
+  position: absolute;
+  /* Animate transform and opacity */
+  transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  /* Default: Stacked state */
+  transform-origin: center bottom;
 }
 
-/* Variants */
+/* Bottom Placements: Stack UP */
+.notip-snackbar-container-bottom-left .notip-snackbar,
+.notip-snackbar-container-bottom-right .notip-snackbar,
+.notip-snackbar-container-bottom-center .notip-snackbar {
+  bottom: 0;
+  /* Stacked: Move up slightly (-10px * index), Scale down */
+  transform: 
+    translate3d(0, calc(var(--index) * -15px), 0) 
+    scale(calc(1 - var(--index) * 0.05));
+  opacity: calc(1 - var(--index) * 0.1);
+}
+
+/* Hover: Expand UP */
+.notip-snackbar-container-bottom-left:hover .notip-snackbar,
+.notip-snackbar-container-bottom-right:hover .notip-snackbar,
+.notip-snackbar-container-bottom-center:hover .notip-snackbar {
+  /* Spread out: Move up by full height + gap */
+  /* Note: -100% refers to element height. */
+  transform: 
+    translate3d(0, calc(var(--index) * -100% - var(--index) * 10px), 0) 
+    scale(1);
+  opacity: 1;
+}
+
+
+/* Top Placements: Stack DOWN */
+.notip-snackbar-container-top-left .notip-snackbar,
+.notip-snackbar-container-top-right .notip-snackbar,
+.notip-snackbar-container-top-center .notip-snackbar {
+  top: 0;
+  transform-origin: center top;
+  /* Stacked: Move down slightly */
+  transform: 
+    translate3d(0, calc(var(--index) * 15px), 0) 
+    scale(calc(1 - var(--index) * 0.05));
+  opacity: calc(1 - var(--index) * 0.1);
+}
+
+/* Hover: Expand DOWN */
+.notip-snackbar-container-top-left:hover .notip-snackbar,
+.notip-snackbar-container-top-right:hover .notip-snackbar,
+.notip-snackbar-container-top-center:hover .notip-snackbar {
+  /* Spread out: Move down by full height + gap */
+  transform: 
+    translate3d(0, calc(var(--index) * 100% + var(--index) * 10px), 0) 
+    scale(1);
+  opacity: 1;
+}
+
+/* Variants (Keep existing) */
 .notip-snackbar-default {
   background-color: #fff;
   color: #1f2937;
