@@ -1,28 +1,37 @@
 import { createPortal } from "react-dom";
-import { useEffect, type FC } from "react";
+import { type FC, type ReactNode } from "react";
 import { useSnackbarStore } from "./useSnackbar";
 import { snackbarStore } from "./store";
 import type { Placement, SnackbarItem } from "./types";
 import "./snackbar.css";
 import { trackMountCountToBlock } from "../utils/mountDetector";
+import { clsx } from "../utils/clsx";
 
-// Icons
-const CloseIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <line x1="18" y1="6" x2="6" y2="18"></line>
-    <line x1="6" y1="6" x2="18" y2="18"></line>
-  </svg>
-);
+import { CloseIcon } from "../icons/Close";
+import { SuccessIcon } from "../icons/Success";
+import { ErrorIcon } from "../icons/Error";
+import { WarningIcon } from "../icons/Warning";
+import { InfoIcon } from "../icons/Info";
+import { LoadingIcon } from "../icons/Loading";
+
+export interface NotipSnackbarProps {
+  limit?: number;
+  classNames?: {
+    toast?: string;
+    title?: string;
+    description?: string;
+    actionButton?: string;
+    cancelButton?: string;
+    closeButton?: string;
+  };
+  icons?: {
+    success?: ReactNode;
+    info?: ReactNode;
+    warning?: ReactNode;
+    error?: ReactNode;
+    loading?: ReactNode;
+  };
+}
 
 // Individual Snackbar Component handles its own timer
 const SnackbarItemComponent = ({
@@ -30,15 +39,27 @@ const SnackbarItemComponent = ({
   index,
   total,
   placement,
+  classNames,
+  icons,
 }: {
   item: SnackbarItem;
   index: number;
   total: number;
   placement: Placement;
+  classNames?: NotipSnackbarProps["classNames"];
+  icons: Required<NonNullable<NotipSnackbarProps["icons"]>>;
 }) => {
+  let variantIcon = null;
+  if (item.variant && item.variant !== "default") {
+    variantIcon = icons[item.variant as keyof typeof icons];
+  }
+
   return (
     <div
-      className={`notip-snackbar notip-snackbar-${item.variant || "default"}`}
+      className={clsx(
+        `notip-snackbar notip-snackbar-${item.variant || "default"}`,
+        classNames?.toast,
+      )}
       role="alert"
       style={
         {
@@ -50,15 +71,20 @@ const SnackbarItemComponent = ({
       data-placement={placement}
     >
       <div className="notip-snackbar-content">
+        {variantIcon && <div className="notip-snackbar-icon">{variantIcon}</div>}
         <div className="notip-snackbar-text">
-          {item.title && <h4 className="notip-snackbar-title">{item.title}</h4>}
+          {item.title && (
+            <h4 className={clsx("notip-snackbar-title", classNames?.title)}>{item.title}</h4>
+          )}
           {item.description && (
-            <p className="notip-snackbar-description">{item.description}</p>
+            <p className={clsx("notip-snackbar-description", classNames?.description)}>
+              {item.description}
+            </p>
           )}
         </div>
         <button
           onClick={() => snackbarStore.dismiss(item.id)}
-          className="notip-close-btn"
+          className={clsx("notip-close-btn", classNames?.closeButton)}
           aria-label="Close"
         >
           <CloseIcon />
@@ -70,14 +96,18 @@ const SnackbarItemComponent = ({
 
 const useTrackMountCount = trackMountCountToBlock();
 
-interface NotipSnackbarProps {
-  limit?: number;
-}
-
-export const NotipSnackbar: FC<NotipSnackbarProps> = ({ limit = 3 }) => {
+export const NotipSnackbar: FC<NotipSnackbarProps> = ({ limit = 3, classNames, icons }) => {
   const { snackbars } = useSnackbarStore(limit);
 
   useTrackMountCount();
+
+  const mergedIcons = {
+    success: icons?.success ?? <SuccessIcon />,
+    info: icons?.info ?? <InfoIcon />,
+    warning: icons?.warning ?? <WarningIcon />,
+    error: icons?.error ?? <ErrorIcon />,
+    loading: icons?.loading ?? <LoadingIcon />,
+  };
 
   const groupedSnackbars = snackbars.reduce(
     (acc, snackbar) => {
@@ -111,6 +141,8 @@ export const NotipSnackbar: FC<NotipSnackbarProps> = ({ limit = 3 }) => {
                 index={idx}
                 total={total}
                 placement={placement}
+                classNames={classNames}
+                icons={mergedIcons}
               />
             );
           })}
