@@ -1,3 +1,28 @@
+import type { ReactNode } from "react";
+
+interface NotipSnackbarClassNames {
+  toast?: string;
+  title?: string;
+  description?: string;
+  actionButton?: string;
+  cancelButton?: string;
+  closeButton?: string;
+}
+
+interface NotipSnackbarIcons {
+  success?: ReactNode;
+  info?: ReactNode;
+  warning?: ReactNode;
+  error?: ReactNode;
+  loading?: ReactNode;
+}
+
+export interface NotipSnackbarProps {
+  limit?: number;
+  classNames?: NotipSnackbarClassNames;
+  icons?: NotipSnackbarIcons;
+}
+
 export type Placement =
   | "top-left"
   | "top-right"

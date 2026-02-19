@@ -2,7 +2,7 @@ import { createPortal } from "react-dom";
 import { type FC, type ReactNode } from "react";
 import { useSnackbarStore } from "./useSnackbar";
 import { snackbarStore } from "./store";
-import type { Placement, SnackbarItem } from "./types";
+import type { NotipSnackbarProps, Placement, SnackbarItem } from "./types";
 import "./snackbar.css";
 import { trackMountCountToBlock } from "../utils/mountDetector";
 import { clsx } from "../utils/clsx";
@@ -13,25 +13,6 @@ import { ErrorIcon } from "../icons/Error";
 import { WarningIcon } from "../icons/Warning";
 import { InfoIcon } from "../icons/Info";
 import { LoadingIcon } from "../icons/Loading";
-
-export interface NotipSnackbarProps {
-  limit?: number;
-  classNames?: {
-    toast?: string;
-    title?: string;
-    description?: string;
-    actionButton?: string;
-    cancelButton?: string;
-    closeButton?: string;
-  };
-  icons?: {
-    success?: ReactNode;
-    info?: ReactNode;
-    warning?: ReactNode;
-    error?: ReactNode;
-    loading?: ReactNode;
-  };
-}
 
 // Individual Snackbar Component handles its own timer
 const SnackbarItemComponent = ({
