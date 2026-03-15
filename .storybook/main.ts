@@ -8,6 +8,7 @@ const config: StorybookConfig = {
     "@storybook/addon-a11y",
     "@storybook/addon-docs",
     "@storybook/addon-onboarding",
+    "@github-ui/storybook-addon-performance-panel",
   ],
   framework: "@storybook/react-vite",
 };

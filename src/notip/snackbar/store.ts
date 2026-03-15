@@ -49,6 +49,7 @@ class SnackbarStore {
       placement: config.placement || "bottom-right",
       time: config.time ?? 3000,
       variant: config.variant || "default",
+      dismissible: config.dismissible ?? true,
     };
 
     // Create Node and Prepend to Head (Newest First)
@@ -67,6 +68,7 @@ class SnackbarStore {
 
     // Register dismiss timer
     const timer = setTimeout(() => {
+      newItem.onAutoClose?.(newItem);
       this.dismiss(id);
     }, newItem.time);
     this.timers.set(id, timer);
@@ -86,6 +88,8 @@ class SnackbarStore {
 
     const node = this.nodes.get(id);
     if (!node) return;
+
+    node.item.onDismiss?.(node.item);
 
     // Unlink from List
     if (node.prev) {

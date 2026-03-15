@@ -27,14 +27,14 @@
   z-index: 9999;
   display: flex;
 
-  /* Use flex primarily to align the 'stack' anchor point, 
+  /* Use flex primarily to align the 'stack' anchor point,
      but items will be absolute. */
   width: 100%;
   max-width: 384px;
   pointer-events: none;
   padding: 16px;
 
-  /* Ensure container has no height so it doesn't block clicks, 
+  /* Ensure container has no height so it doesn't block clicks,
      items will project out */
   height: 0;
 
@@ -81,31 +81,19 @@
   align-items: center;
 }
 
-/* Snackbar Item */
-.notip-snackbar {
+/* Stacking — applies to any direct child (class-agnostic for headless support) */
+.notip-snackbar-container > * {
   pointer-events: auto;
-  padding: 16px;
-  border-radius: 8px;
-  box-shadow:
-    0 10px 15px -3px rgb(0 0 0 / 10%),
-    0 4px 6px -2px rgb(0 0 0 / 5%);
-  border: 1px solid transparent;
-  background-color: #fff;
-  color: #1f2937;
   width: 100%;
   position: absolute;
-
-  /* Animate transform and opacity */
   transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-
-  /* Default: Stacked state */
   transform-origin: center bottom;
 }
 
 /* Bottom Placements: Stack UP */
-.notip-snackbar-container-bottom-left .notip-snackbar,
-.notip-snackbar-container-bottom-right .notip-snackbar,
-.notip-snackbar-container-bottom-center .notip-snackbar {
+.notip-snackbar-container-bottom-left > *,
+.notip-snackbar-container-bottom-right > *,
+.notip-snackbar-container-bottom-center > * {
   bottom: 0;
 
   /* Stacked: Move up slightly (-15px * index), Scale down */
@@ -114,9 +102,9 @@
 }
 
 /* Top Placements: Stack DOWN */
-.notip-snackbar-container-top-left .notip-snackbar,
-.notip-snackbar-container-top-right .notip-snackbar,
-.notip-snackbar-container-top-center .notip-snackbar {
+.notip-snackbar-container-top-left > *,
+.notip-snackbar-container-top-right > *,
+.notip-snackbar-container-top-center > * {
   top: 0;
   transform-origin: center top;
 
@@ -126,9 +114,9 @@
 }
 
 /* Hover: Expand UP */
-.notip-snackbar-container-bottom-left:hover .notip-snackbar,
-.notip-snackbar-container-bottom-right:hover .notip-snackbar,
-.notip-snackbar-container-bottom-center:hover .notip-snackbar {
+.notip-snackbar-container-bottom-left:hover > *,
+.notip-snackbar-container-bottom-right:hover > *,
+.notip-snackbar-container-bottom-center:hover > * {
   /* Spread out: Move up by full height + gap */
 
   /* Note: -100% refers to element height. */
@@ -137,15 +125,27 @@
 }
 
 /* Hover: Expand DOWN */
-.notip-snackbar-container-top-left:hover .notip-snackbar,
-.notip-snackbar-container-top-right:hover .notip-snackbar,
-.notip-snackbar-container-top-center:hover .notip-snackbar {
+.notip-snackbar-container-top-left:hover > *,
+.notip-snackbar-container-top-right:hover > *,
+.notip-snackbar-container-top-center:hover > * {
   /* Spread out: Move down by full height + gap */
   transform: translate3d(0, calc(var(--index) * 100% + var(--index) * 10px), 0) scale(1);
   opacity: 1;
 }
 
-/* Variants (Keep existing) */
+/* Snackbar Item — appearance only (positioning handled by > * rules above) */
+.notip-snackbar {
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 10%),
+    0 4px 6px -2px rgb(0 0 0 / 5%);
+  border: 1px solid transparent;
+  background-color: #fff;
+  color: #1f2937;
+}
+
+/* Variants */
 .notip-snackbar-default {
   background-color: #fff;
   color: #1f2937;
@@ -256,6 +256,45 @@
 
 .notip-close-btn:hover {
   opacity: 1;
+}
+
+/* Action / Cancel buttons */
+.notip-snackbar-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.notip-snackbar-action-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  background-color: #111827;
+  color: #fff;
+  transition: opacity 0.2s;
+}
+
+.notip-snackbar-action-btn:hover {
+  opacity: 0.9;
+}
+
+.notip-snackbar-cancel-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  background-color: transparent;
+  color: inherit;
+  transition: background-color 0.2s;
+}
+
+.notip-snackbar-cancel-btn:hover {
+  background-color: rgb(0 0 0 / 5%);
 }
 
 .notip-spin {

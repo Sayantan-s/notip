@@ -2,6 +2,7 @@ import { expect, test, beforeEach, vi } from "vitest";
 import { render, cleanup } from "vitest-browser-react";
 import { page } from "vitest/browser";
 import { NotipSnackbar, useSnackbar, snackbarStore } from "../../../src/notip";
+import type { SnackbarConfig } from "../../../src/notip";
 import React from "react";
 
 // Helper component to trigger snackbars
@@ -36,7 +37,7 @@ beforeEach(() => {
   store.nodes.clear();
   store.head = null;
   store.tail = null;
-  
+
   store.listeners.forEach((l: any) => l());
 
   // Clear timers
@@ -171,4 +172,220 @@ test("auto dismisses after timeout", async () => {
   await expect.element(alert).not.toBeInTheDocument();
 
   vi.useRealTimers();
+});
+
+// --- Composable API tests ---
+
+const CustomTrigger = ({ config }: { config: SnackbarConfig }) => {
+  const { show } = useSnackbar();
+  return <button onClick={() => show(config)}>Trigger</button>;
+};
+
+test("renders custom JSX in styled shell via per-toast jsx", async () => {
+  render(
+    <>
+      <NotipSnackbar />
+      <CustomTrigger
+        config={{
+          variant: "success",
+          time: 5000,
+          jsx: ({ dismiss }) => (
+            <div>
+              <span>Custom Content</span>
+              <button onClick={dismiss}>Custom Close</button>
+            </div>
+          ),
+        }}
+      />
+    </>,
+  );
+
+  await page.getByText("Trigger").click();
+  const alert = page.getByRole("alert");
+  await expect.element(alert).toBeInTheDocument();
+  await expect.element(page.getByText("Custom Content")).toBeInTheDocument();
+});
+
+test("renders fully headless via children render prop", async () => {
+  render(
+    <>
+      <NotipSnackbar>
+        {({ item, dismiss }) => (
+          <div role="alert">
+            <span data-testid="custom-title">{item.title}</span>
+            <button onClick={dismiss}>X</button>
+          </div>
+        )}
+      </NotipSnackbar>
+      <CustomTrigger config={{ title: "Headless Toast", variant: "error", time: 5000 }} />
+    </>,
+  );
+
+  await page.getByText("Trigger").click();
+  await expect.element(page.getByTestId("custom-title")).toHaveTextContent("Headless Toast");
+});
+
+test("dismiss works via children render prop", async () => {
+  render(
+    <>
+      <NotipSnackbar>
+        {({ item, dismiss }) => (
+          <div role="alert">
+            <span>{item.title}</span>
+            <button onClick={dismiss}>X</button>
+          </div>
+        )}
+      </NotipSnackbar>
+      <CustomTrigger config={{ title: "Dismiss Me", time: 5000 }} />
+    </>,
+  );
+
+  await page.getByText("Trigger").click();
+  await expect.element(page.getByRole("alert")).toBeInTheDocument();
+
+  await page.getByText("X").click();
+  await expect.element(page.getByRole("alert")).not.toBeInTheDocument();
+});
+
+test("action and cancel buttons render and work", async () => {
+  const actionFn = vi.fn();
+  const cancelFn = vi.fn();
+
+  const ActionTrigger = () => {
+    const { show } = useSnackbar();
+    return (
+      <button
+        onClick={() =>
+          show({
+            title: "With Actions",
+            time: 5000,
+            action: { label: "Confirm", onClick: actionFn },
+            cancel: { label: "Cancel", onClick: cancelFn },
+          })
+        }
+      >
+        Trigger
+      </button>
+    );
+  };
+
+  render(
+    <>
+      <NotipSnackbar />
+      <ActionTrigger />
+    </>,
+  );
+
+  await page.getByText("Trigger").click();
+  await expect.element(page.getByText("Confirm")).toBeInTheDocument();
+  await expect.element(page.getByText("Cancel")).toBeInTheDocument();
+
+  await page.getByText("Confirm").click();
+  expect(actionFn).toHaveBeenCalledOnce();
+  // Action dismisses the toast
+  await expect.element(page.getByRole("alert")).not.toBeInTheDocument();
+});
+
+test("dismissible: false hides close button", async () => {
+  render(
+    <>
+      <NotipSnackbar />
+      <CustomTrigger config={{ title: "No Close", time: 5000, dismissible: false }} />
+    </>,
+  );
+
+  await page.getByText("Trigger").click();
+  await expect.element(page.getByRole("alert")).toBeInTheDocument();
+  await expect.element(page.getByLabelText("Close")).not.toBeInTheDocument();
+});
+
+test("per-toast custom icon renders", async () => {
+  render(
+    <>
+      <NotipSnackbar />
+      <CustomTrigger
+        config={{
+          title: "Custom Icon",
+          variant: "success",
+          time: 5000,
+          icon: <span data-testid="custom-icon">★</span>,
+        }}
+      />
+    </>,
+  );
+
+  await page.getByText("Trigger").click();
+  await expect.element(page.getByTestId("custom-icon")).toBeInTheDocument();
+});
+
+test("onDismiss callback fires on manual dismiss", async () => {
+  const onDismissFn = vi.fn();
+
+  const DismissTrigger = () => {
+    const { show } = useSnackbar();
+    return (
+      <button onClick={() => show({ title: "Callback Test", time: 5000, onDismiss: onDismissFn })}>
+        Trigger
+      </button>
+    );
+  };
+
+  render(
+    <>
+      <NotipSnackbar />
+      <DismissTrigger />
+    </>,
+  );
+
+  await page.getByText("Trigger").click();
+  await expect.element(page.getByRole("alert")).toBeInTheDocument();
+  await page.getByLabelText("Close").click();
+  await expect.element(page.getByRole("alert")).not.toBeInTheDocument();
+  expect(onDismissFn).toHaveBeenCalledOnce();
+});
+
+test("onAutoClose callback fires on timer dismiss", async () => {
+  vi.useFakeTimers();
+  const onAutoCloseFn = vi.fn();
+
+  const AutoCloseTrigger = () => {
+    const { show } = useSnackbar();
+    return (
+      <button onClick={() => show({ title: "Auto Close", time: 100, onAutoClose: onAutoCloseFn })}>
+        Trigger
+      </button>
+    );
+  };
+
+  render(
+    <>
+      <NotipSnackbar />
+      <AutoCloseTrigger />
+    </>,
+  );
+
+  await page.getByText("Trigger").click();
+  await expect.element(page.getByRole("alert")).toBeInTheDocument();
+
+  vi.advanceTimersByTime(200);
+
+  await expect.element(page.getByRole("alert")).not.toBeInTheDocument();
+  expect(onAutoCloseFn).toHaveBeenCalledOnce();
+
+  vi.useRealTimers();
+});
+
+test("global unstyled prop strips default CSS classes", async () => {
+  render(
+    <>
+      <NotipSnackbar unstyled />
+      <CustomTrigger config={{ title: "Unstyled", variant: "success", time: 5000 }} />
+    </>,
+  );
+
+  await page.getByText("Trigger").click();
+  const alert = page.getByRole("alert");
+  await expect.element(alert).toBeInTheDocument();
+  // Should NOT have the default styled class
+  await expect.element(alert).not.toHaveClass("notip-snackbar");
 });

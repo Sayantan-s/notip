@@ -3,6 +3,7 @@ dist
 *.log
 .DS_Store
 GEMINI.md
+.claude/**/*
 
 *storybook.log
 storybook-static

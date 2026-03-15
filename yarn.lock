@@ -665,6 +665,11 @@
   resolved "https://registry.yarnpkg.com/@esbuild/win32-x64/-/win32-x64-0.27.3.tgz#0eaf705c941a218a43dba8e09f1df1d6cd2f1f17"
   integrity sha512-4uJGhsxuptu3OcpVAzli+/gWusVGwZZHTlS63hh++ehExkVT8SgiEf7/uC/PclrPPkLhZqGgCTjd0VWLo6xMqA==
 
+"@github-ui/storybook-addon-performance-panel@^1.1.4":
+  version "1.1.4"
+  resolved "https://registry.yarnpkg.com/@github-ui/storybook-addon-performance-panel/-/storybook-addon-performance-panel-1.1.4.tgz#a2e0c043e0e973111a1b7335b31d2cbf5c72850e"
+  integrity sha512-clVeSoS1BM2z+nHffOXpnA1J034XALEDfJez6yg7TS7Clfn8eBjgw5FwLjfMvM+kWeG2nwfP6LujRMvJDqj+yg==
+
 "@isaacs/balanced-match@^4.0.1":
   version "4.0.1"
   resolved "https://registry.npmjs.org/@isaacs/balanced-match/-/balanced-match-4.0.1.tgz"

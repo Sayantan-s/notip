@@ -47,6 +47,7 @@
     "@chromatic-com/storybook": "^5.0.0",
     "@commitlint/cli": "^20.4.1",
     "@commitlint/config-conventional": "^20.4.1",
+    "@github-ui/storybook-addon-performance-panel": "^1.1.4",
     "@rollup/plugin-babel": "^6.1.0",
     "@storybook/addon-a11y": "^10.2.7",
     "@storybook/addon-docs": "^10.2.7",
