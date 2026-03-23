@@ -26,11 +26,13 @@ const DefaultSnackbarItem = ({
   classNames,
   icons,
   unstyled,
+  hoverHandlers,
 }: {
   renderProps: SnackbarItemRenderProps;
   classNames?: SnackbarClassNames | undefined;
   icons: Required<NonNullable<NotipSnackbarProps["icons"]>>;
   unstyled?: boolean | undefined;
+  hoverHandlers: { onMouseEnter: () => void; onMouseLeave: () => void };
 }) => {
   const { item, index, total, placement, dismiss } = renderProps;
   const variant = item.variant || "default";
@@ -50,6 +52,7 @@ const DefaultSnackbarItem = ({
     <div
       className={rootClass}
       role="alert"
+      {...hoverHandlers}
       style={
         {
           "--index": index,
@@ -176,12 +179,17 @@ export const NotipSnackbar: FC<NotipSnackbarProps> = ({
           >
             {items.map((snackbar, idx) => {
               const renderProps = buildRenderProps(snackbar, idx, total, placement);
+              const hoverHandlers = {
+                onMouseEnter: () => snackbarStore.pause(snackbar.id),
+                onMouseLeave: () => snackbarStore.resume(snackbar.id),
+              };
 
               // PATH 1: Fully headless (children render prop)
               if (children) {
                 return (
                   <div
                     key={snackbar.id}
+                    {...hoverHandlers}
                     style={
                       {
                         "--index": idx,
@@ -202,6 +210,7 @@ export const NotipSnackbar: FC<NotipSnackbarProps> = ({
                 return (
                   <div
                     key={snackbar.id}
+                    {...hoverHandlers}
                     className={
                       isUnstyled
                         ? clsx(snackbar.classNames?.toast)
@@ -233,6 +242,7 @@ export const NotipSnackbar: FC<NotipSnackbarProps> = ({
                   classNames={snackbar.classNames ?? classNames}
                   icons={mergedIcons!}
                   unstyled={snackbar.unstyled ?? unstyled}
+                  hoverHandlers={hoverHandlers}
                 />
               );
             })}

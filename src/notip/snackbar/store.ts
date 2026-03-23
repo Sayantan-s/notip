@@ -23,6 +23,9 @@ class SnackbarStore {
 
   private listeners = new Set<() => void>();
   private timers = new Map<string, ReturnType<typeof setTimeout>>();
+  private pausedAt = new Map<string, number>(); // timestamp when paused
+  private remaining = new Map<string, number>(); // remaining ms when paused
+  private startedAt = new Map<string, number>(); // timestamp when timer started
 
   subscribe = (config: ISubscriptionConfig) => (listener: () => void) => {
     const newLimit = config?.limit || 3;
@@ -67,15 +70,48 @@ class SnackbarStore {
     this.nodes.set(id, node);
 
     // Register dismiss timer
-    const timer = setTimeout(() => {
-      newItem.onAutoClose?.(newItem);
-      this.dismiss(id);
-    }, newItem.time);
-    this.timers.set(id, timer);
+    this.startTimer(id, newItem, newItem.time);
 
     this.updateVisibleState();
     this.emitChange();
     return id;
+  };
+
+  private startTimer(id: string, item: SnackbarItem, duration: number) {
+    const timer = setTimeout(() => {
+      item.onAutoClose?.(item);
+      this.dismiss(id);
+    }, duration);
+    this.timers.set(id, timer);
+    this.startedAt.set(id, Date.now());
+    this.remaining.set(id, duration);
+  }
+
+  pause = (id: string) => {
+    if (this.pausedAt.has(id)) return; // already paused
+    const timer = this.timers.get(id);
+    if (!timer) return;
+
+    clearTimeout(timer);
+    this.timers.delete(id);
+
+    const startTime = this.startedAt.get(id)!;
+    const totalDuration = this.remaining.get(id)!;
+    const elapsed = Date.now() - startTime;
+    const left = Math.max(totalDuration - elapsed, 0);
+
+    this.pausedAt.set(id, Date.now());
+    this.remaining.set(id, left);
+  };
+
+  resume = (id: string) => {
+    if (!this.pausedAt.has(id)) return; // not paused
+    const node = this.nodes.get(id);
+    if (!node) return;
+
+    const left = this.remaining.get(id)!;
+    this.pausedAt.delete(id);
+    this.startTimer(id, node.item, left);
   };
 
   dismiss = (id: string) => {
@@ -85,6 +121,9 @@ class SnackbarStore {
       clearTimeout(timer);
       this.timers.delete(id);
     }
+    this.pausedAt.delete(id);
+    this.remaining.delete(id);
+    this.startedAt.delete(id);
 
     const node = this.nodes.get(id);
     if (!node) return;

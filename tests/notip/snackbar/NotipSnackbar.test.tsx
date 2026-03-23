@@ -40,9 +40,12 @@ beforeEach(() => {
 
   store.listeners.forEach((l: any) => l());
 
-  // Clear timers
+  // Clear timers and pause state
   store.timers.forEach((t: any) => clearTimeout(t));
   store.timers.clear();
+  store.pausedAt.clear();
+  store.remaining.clear();
+  store.startedAt.clear();
 });
 
 test("renders nothing initially", async () => {
@@ -370,6 +373,149 @@ test("onAutoClose callback fires on timer dismiss", async () => {
   vi.advanceTimersByTime(200);
 
   await expect.element(page.getByRole("alert")).not.toBeInTheDocument();
+  expect(onAutoCloseFn).toHaveBeenCalledOnce();
+
+  vi.useRealTimers();
+});
+
+// --- Hover pause/resume tests ---
+
+test("snackbar is not dismissed while hovered", async () => {
+  vi.useFakeTimers();
+  render(
+    <>
+      <NotipSnackbar />
+      <Trigger />
+    </>,
+  );
+
+  await page.getByText("Show Short").click(); // 100ms timer
+  const alert = page.getByRole("alert");
+  await expect.element(alert).toBeInTheDocument();
+
+  // Hover on the snackbar
+  await alert.hover();
+
+  // Advance well past the timer
+  vi.advanceTimersByTime(500);
+
+  // Should still be visible because it's hovered
+  await expect.element(alert).toBeInTheDocument();
+
+  vi.useRealTimers();
+});
+
+test("snackbar dismisses after mouse leaves with remaining time", async () => {
+  vi.useFakeTimers();
+
+  const HoverTrigger = () => {
+    const { show } = useSnackbar();
+    return <button onClick={() => show({ title: "Hover Test", time: 3000 })}>Show Hover</button>;
+  };
+
+  render(
+    <>
+      <NotipSnackbar />
+      <HoverTrigger />
+    </>,
+  );
+
+  await page.getByText("Show Hover").click();
+  const alert = page.getByRole("alert");
+  await expect.element(alert).toBeInTheDocument();
+
+  // Advance 300ms, then hover
+  vi.advanceTimersByTime(300);
+  await alert.hover();
+
+  // Advance well past original timer — should still be visible
+  vi.advanceTimersByTime(5000);
+  await expect.element(alert).toBeInTheDocument();
+
+  // Move mouse away (unhover)
+  await page.getByText("Show Hover").hover();
+
+  // Should still be visible — 2700ms remaining
+  vi.advanceTimersByTime(2600);
+  await expect.element(alert).toBeInTheDocument();
+
+  // Now advance past remaining time
+  vi.advanceTimersByTime(200);
+  await expect.element(alert).not.toBeInTheDocument();
+
+  vi.useRealTimers();
+});
+
+test("hover works with children render prop", async () => {
+  vi.useFakeTimers();
+  render(
+    <>
+      <NotipSnackbar>
+        {({ item, dismiss }) => (
+          <div role="alert">
+            <span>{item.title}</span>
+            <button onClick={dismiss}>X</button>
+          </div>
+        )}
+      </NotipSnackbar>
+      <CustomTrigger config={{ title: "Headless Hover", time: 200 }} />
+    </>,
+  );
+
+  await page.getByText("Trigger").click();
+  const alert = page.getByRole("alert");
+  await expect.element(alert).toBeInTheDocument();
+
+  // Hover
+  await alert.hover();
+
+  // Advance past timer
+  vi.advanceTimersByTime(500);
+
+  // Still visible
+  await expect.element(alert).toBeInTheDocument();
+
+  vi.useRealTimers();
+});
+
+test("onAutoClose fires after unhover remaining time elapses", async () => {
+  vi.useFakeTimers();
+  const onAutoCloseFn = vi.fn();
+
+  const AutoHoverTrigger = () => {
+    const { show } = useSnackbar();
+    return (
+      <button onClick={() => show({ title: "Auto Hover", time: 1000, onAutoClose: onAutoCloseFn })}>
+        Trigger
+      </button>
+    );
+  };
+
+  render(
+    <>
+      <NotipSnackbar />
+      <AutoHoverTrigger />
+    </>,
+  );
+
+  await page.getByText("Trigger").click();
+  const alert = page.getByRole("alert");
+  await expect.element(alert).toBeInTheDocument();
+
+  // Hover immediately
+  await alert.hover();
+
+  // Advance well past timer
+  vi.advanceTimersByTime(2000);
+  expect(onAutoCloseFn).not.toHaveBeenCalled();
+
+  // Unhover
+  await page.getByText("Trigger").hover();
+
+  // Advance past remaining time (full 1000ms since we hovered at ~0)
+  vi.advanceTimersByTime(1100);
+
+  await expect.element(alert).not.toBeInTheDocument();
   expect(onAutoCloseFn).toHaveBeenCalledOnce();
 
   vi.useRealTimers();
