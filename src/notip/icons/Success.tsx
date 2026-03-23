@@ -10,6 +10,7 @@ export const SuccessIcon = () => (
     strokeLinecap="round"
     strokeLinejoin="round"
   >
-    <polyline points="20 6 9 17 4 12"></polyline>
+    <circle cx="12" cy="12" r="10"></circle>
+    <polyline points="16 10 11 15 8 12"></polyline>
   </svg>
 );
